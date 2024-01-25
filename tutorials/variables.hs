@@ -1,3 +1,4 @@
+import Text.Parsec (putState)
 main = do
     let name = "Dudley"
     putStrLn (name ++" was a bad child")
@@ -13,4 +14,14 @@ main = do
 
     let numOfGifts = 30
 
-    putStrLn ("Today was "++name++" birthday he recieved "++show numOfGifts++ " gifts") 
+    putStrLn ("Today was "++name++" birthday he recieved "++show numOfGifts++ " gifts") -- in order to print integers to the console you need to use "show"
+
+    let name2 = "fred"
+
+    putStrLn (name2++ "and " ++name++ "got into a fight resulting in " ++show numOfGifts++ " deaths")
+
+    
+
+
+    
+
