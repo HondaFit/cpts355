@@ -1,4 +1,6 @@
-import Text.Parsec (putState)
+name3 :: String
+name3 = "bobby"
+
 main = do
     let name = "Dudley"
     putStrLn (name ++" was a bad child")
@@ -18,7 +20,11 @@ main = do
 
     let name2 = "fred"
 
-    putStrLn (name2++ "and " ++name++ "got into a fight resulting in " ++show numOfGifts++ " deaths")
+    putStrLn (name2++ " and " ++name++ " got into a fight resulting in " ++show numOfGifts++ " deaths")
+
+    putStrLn (name3++ " and " ++name++ " got into a fight resulting in " ++show numOfGifts++ " deaths")
+
+    
 
     
 
