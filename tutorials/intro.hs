@@ -1,9 +1,21 @@
-import Data.List
-import System.IO
+x = 3 -- x is immutable
+-- x = 10
 
-add :: Integer -> Integer -> Integer   --function declaration 
-add x y =  x + y                       --function definition 
+anotherVariable = "hello"
 
-main = do
-    putStrLn "The addition of the two numbers is:"  
-    print(add 2 5)    --calling a function 
+thirdVariable = 'c'
+
+fourthVariable = ['h', 'i', '!']
+
+addOne :: Integer -> Integer
+addOne anything = anything + 1
+
+sumTwo :: Integer -> Integer -> Integer
+sumTwo first second = first + second
+
+sumZero :: Integer
+sumZero = 0
+
+y = addOne 23
+
+-- y = addOne(23)
