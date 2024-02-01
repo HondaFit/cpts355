@@ -8,7 +8,7 @@ import Data.Char (toUpper)
 
 -- 1. exists
 
-
+ exists Eq Char => String -> Bool
 
 -- 2. listUnion
 
