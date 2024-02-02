@@ -1,3 +1,8 @@
-exists :: Eq t => t -> [t] -> Bool
+exists :: Eq t => t -> [t] -> Bool  
+exists val list = elem val list
 
-exists single list = do
+
+main::IO()
+main = do 
+    print (exists 10 [5,5,2,7,9,4,1])
+
