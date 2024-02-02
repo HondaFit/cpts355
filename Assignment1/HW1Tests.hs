@@ -27,7 +27,7 @@ To setup HUnit:
 {- Example of using the HUnit unit test framework.  See  http://hackage.haskell.org/package/HUnit for additional documentation.
 To run the tests type "runTestTT tests" at the Haskell prompt.  -}
 
-module HW1Tests
+module Assignment1.HW1Tests
     where
 
 import Test.HUnit
