@@ -1,15 +1,17 @@
+--Final version for testing functions for problems
+--Note, this is not done yet. There are functinos for Problem 3,5,6 but there are bugs that need to be resolved. Once resolved, it will show here
+
 
 exists :: Eq t => t -> [t] -> Bool  
 exists val list = elem val list
 
-removeDuplicates:: Eq a=> [a] -> [a]
-removeDuplicates [] = []
-removeDuplicates (x:xs)
-  | x `elem` xs = removeDuplicates xs
-  | otherwise   = x : removeDuplicates xs
-
 listUnion :: Eq a => [a] -> [a] -> [a]
-listUnion val1 val2 = removeDuplicates(val1 ++ val2)
+listUnion val1 val2 = removeDuplicates(val1 ++ val2) --function cateneates list and is used as a parameter for removeDuplicates
+  where
+  removeDuplicates:: Eq a=> [a] -> [a] -- seperate fucntion removes duplicates from list
+  removeDuplicates (x:xs)
+    | elem x xs = removeDuplicates xs
+    | otherwise   = x : removeDuplicates xs
 
 prereqsList =
     [ ("CptS122" , ["CptS121"]),
@@ -34,12 +36,12 @@ prereqFor [] _ = []
 prereqFor ((course, prereqs):courses) pre
   | contains pre prereqs = course : prereqFor courses pre
   | otherwise = prereqFor courses pre
-
-contains :: Eq t => t -> [t] -> Bool
-contains _ [] = False
-contains x (y:ys)
-  | x == y = True
-  | otherwise = contains x ys
+    where
+      contains :: Eq t => t -> [t] -> Bool
+      contains _ [] = False
+      contains x (y:ys)
+        | x == y = True
+        | otherwise = contains x ys
 
 
 main ::IO()
@@ -67,6 +69,16 @@ main = do
     putStrLn (prereqFor [] "CptS355")
     print (prereqFor prereqsList "MATH216")
     print (prereqFor [("CourseA",["CptS355"]),("CourseB",[])] "CptS355")
+
+
+    --problem 5
+
+
+    --problem 6
+    
+
+
+    
 
 
 
