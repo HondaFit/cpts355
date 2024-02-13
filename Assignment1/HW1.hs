@@ -21,13 +21,16 @@ exists val list = elem val list --
 
 listUnion :: Eq a => [a] -> [a] -> [a]
 listUnion val1 val2 = removeDuplicates(val1 ++ val2) --function cateneates list and is used as a parameter for removeDuplicates
-  where
+  where 
   removeDuplicates:: Eq a=> [a] -> [a] -- seperate fucntion removes duplicates from list
+  removeDuplicates [] = []
   removeDuplicates (x:xs)
     | elem x xs = removeDuplicates xs
     | otherwise   = x : removeDuplicates xs
 
 -- 3. replace
+
+
 
 
 
@@ -63,7 +66,33 @@ prereqFor ((course, prereqs):courses) pre
 
   
 -- 5. isPalindrome
+isPalindrome :: [Char] -> Bool
+isPalindrome str =
+  cleaned == reverse cleaned
+  where
+    toUpperCase :: [Char] -> [Char]   --conversion
+    toUpperCase [] = []
+    toUpperCase (x:xs) = toUpper x : toUpperCase xs
+
+    removeNonAlphaNum :: [Char] -> [Char] --filter string 
+    removeNonAlphaNum [] = []
+    removeNonAlphaNum (x:xs)   
+      | x >= '0' && x <= '9' = x : removeNonAlphaNum xs
+      | x >= 'A' && x <= 'Z' || x >= 'a' && x <= 'z' = x : removeNonAlphaNum xs 
+      | otherwise = removeNonAlphaNum xs
+
+    cleaned = removeNonAlphaNum uppercase 
+    uppercase = toUpperCase str
 
 
 
 -- 6. groupSumtoN
+
+groupSumtoN :: (Ord a, Num a) => a -> [a] -> [[a]] --groups sublists from list that sum are sum to x
+groupSumtoN x [] = [[]]
+groupSumtoN x xs = list x xs []
+    where 
+        list x [] acc = [acc]
+        list x (y:ys) acc
+            |x >= sum (acc++[y]) = list x ys (acc ++ [y]) 
+            | otherwise = acc : list x ys [y]
