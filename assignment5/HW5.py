@@ -1,7 +1,11 @@
+#Harish Sridharan
 import re
-opstack = []
-dictstack = []
 
+
+# Code that is not under NEW CODE comment is code that has been used for HW4. Little to know change has been done to them
+opstack = []
+
+#code from 
 def opPop():
     #Removes and returns the top value from the operand stack
     #Returns None if the operand stack is empty
@@ -14,8 +18,10 @@ def opPop():
 
 def opPush(value):
     #Pushes the given value onto the top of the operand stack
-    opstack.append(value)
+    return opstack.append(value)
 
+
+dictstack = []
 
 
 def dictPop():
@@ -269,8 +275,6 @@ def getinterval():
         pass
 
 
-########################################################################################################################################################################################## Updated code
-
 def put():
     #Pops a string, index, and ASCII value, and replaces the char at index with the char having the ASCII value
     #Pushes the resulting string. Pushes the original values back on the stack if an error occurs
@@ -288,19 +292,6 @@ def put():
             and ascii_val <= 127
         ):
             new_string = string[: index + 1] + chr(ascii_val) + string[index + 2 :]
-            
-            # Update all copies of the string in the opstack
-            for i in range(len(opstack)):
-                if id(opstack[i]) == id(string):
-                    opstack[i] = new_string
-            
-            # Update all copies of the string in the top dictionary of the dictstack
-            if len(dictstack) > 0:
-                top_dict = dictstack[-1]
-                for key in top_dict:
-                    if id(top_dict[key]) == id(string):
-                        top_dict[key] = new_string
-            
             opPush(new_string)
         else:
             #print("Error: put expects a string, an integer index within bounds, and an integer ASCII value")
@@ -310,8 +301,7 @@ def put():
     else:
         #print("Error: put expects three operands")
         pass
-    
-##########################################################################################################################################################################################
+
 
 def dup():
     #Duplicates the top value on the operand stack
@@ -403,7 +393,7 @@ def roll():
 def stack():
     #Prints the contents of the operand stack, from top to bottom, without modifying the stack
     #Prints a message if the stack is empty
-    if len(opstack) > 0:
+    if len(opstack) > -1:
         for item in reversed(opstack):
             print(item)
     else:
@@ -412,18 +402,15 @@ def stack():
 
 
 def psDict():
-    #Pops a size argument, creates a new dict of that size, and pushes it on the operand stack
-    #Pushes the original value back on the stack if an error occurs
-    if len(opstack) > 0:
-        op = opPop()
-        if isinstance(op, int):
-            opPush(dict())
-        else:
-            # print("Error: dict expects an int operand")
-            opPush(op)
+    if len(opstack) < 1:
+        print("Error")
     else:
-        # print("Error: dict expects one operand")
-        pass
+        size = opPop()
+        if isinstance(size, int):
+            opPush({})
+        else:
+            print("Error")
+        
 
 
 def begin():
@@ -469,129 +456,355 @@ def psDef():
 
 
 
-########################################################################################################################################################################################## NEW CODE
 
+##############################################################################################################################
 def tokenize(s):
-    return re.findall("/?[a-zA-Z()][a-zA-Z0-9_()]*|[-]?[0-9]+|[}{]+|%.*|[^ \t\n]", s)
+    return re.findall("/?[a-zA-Z()][a-zA-Z0-9_()]*|[-]?[0-9]+|[}{]+|%.*|[^\t\n ]", s)
 
+# implement groupmatchiing function 
+# iterates through th einput sequence and calls itself when encoutering curly brackets and 
+# group elements
 def groupMatching2(it):
     res = []
     for c in it:
         if c == '}':
             return res
-        elif c == '{':
+        elif c=='{':
             res.append(groupMatching2(it))
-        elif c.isdigit() or (c.startswith('-') and c[1:].isdigit()):
-            res.append(int(c))
-        elif c == 'true':
-            res.append(True)
-        elif c == 'false':
-            res.append(False)
         else:
             res.append(c)
     return False
 
+# implement the parse function 
+# oarse a list of takens and arraanges them in curly brackets 
 def parse(L):
     res = []
     it = iter(L)
     for c in it:
         if c == '}':
-            # Return False only if encountering a mismatched brace
-            return False
+            return res
         elif c == '{':
-            nested = groupMatching2(it)
-            if nested is False:
-                return False
-            res.append(nested)
-        elif c.isdigit() or (c.startswith('-') and c[1:].isdigit()):
+            res.append(parse(it))
+        elif c.isdigit():
             res.append(int(c))
-        elif c == 'true':
+        elif c == "true":
             res.append(True)
-        elif c == 'false':
+        elif c == "false":
             res.append(False)
         else:
             res.append(c)
     return res
 
+# Implement the put function
+# updates a character in a string at a specified index. Popps value from stack. validates check on imput value 
+# updates string and all values to the orgiingal string
+def put():
+    if len(opstack) > 2:
+        ascii_val = opPop()
+        index = opPop()
+        string = opPop()
+        if (
+            isinstance(ascii_val, int)
+            and isinstance(index, int)
+            and isinstance(string, str)
+            and index >= 0
+            and index < len(string) - 2
+            and ascii_val >= 0
+            and ascii_val <= 127
+        ):
+            new_string = string[: index + 1] + chr(ascii_val) + string[index + 2 :]
+            # Update all references to the original string in opstack and dictstack
+            for i in range(len(opstack)):
+                if id(opstack[i]) == id(string):
+                    opstack[i] = new_string
+            for i in range(len(dictstack)):
+                for key in dictstack[i]:
+                    if id(dictstack[i][key]) == id(string):
+                        dictstack[i][key] = new_string
+            opPush(new_string)
+        else:
+            opPush(string)
+            opPush(index)
+            opPush(ascii_val)
+    else:
+        pass
 
-
+# Implement the psIf function
+# pops value from stack, including code array to be executed and condition. checks to see true
+# to executes the asscoated array
 def psIf():
-    if len(opstack) > 1:
-        cond = opPop()
+    stack_length = len(opstack)
+    if stack_length > 0:
         code = opPop()
-        if isinstance(code, list) and isinstance(cond, bool):
+        cond = opPop()
+        
+        type_check = isinstance(cond, bool) and isinstance(code, list)
+        
+        if type_check:
             if cond:
                 interpretSPS(code)
-        else:
-            opPush(code)
-            opPush(cond)
+            # else: pass (no need for an else block)
     else:
-        print("Error: psIf expects two operands")
+        return
 
-def psIfelse():
-    if len(opstack) > 2:
-        else_code = opPop()
-        if_code = opPop()
-        cond = opPop()
-        if isinstance(else_code, list) and isinstance(if_code, list) and isinstance(cond, bool):
-            if cond:
-                interpretSPS(if_code)
-            else:
-                interpretSPS(else_code)
+# Implement the psIfelse function
+# Pop values from the stack including false/true and the condition. evalueates the condition and executues
+# either the true or false based on conditon balue 
+def psIfElse():
+    stack_len = len(opstack)
+    if stack_len <= 2:
+        print("Error.")
+        return
+
+    Fstatement = opPop()
+    Tstatement = opPop()
+    preReq = opPop()
+
+    valid_condition = isinstance(preReq, bool)
+
+    if valid_condition:
+        if preReq:
+            interpretSPS(Tstatement)
         else:
-            opPush(cond)
-            opPush(if_code)
-            opPush(else_code)
+            interpretSPS(Fstatement)
     else:
-        print("Error: psIfelse expects three operands")
+        print("Failed if else")
+        opPush(preReq)
+        opPush(Tstatement)
+        opPush(Fstatement)
 
+# Implement the psFor function
+# pops value from the operand stack including the loop control paramters, and code array to be executed
+# iterates over specified range base on paramter and executes the code array for each iteration
 def psFor():
-    if len(opstack) > 3:
-        proc = opPop()
-        final = opPop()
-        incr = opPop()
-        init = opPop()
-        if isinstance(proc, list) and isinstance(final, int) and isinstance(incr, int) and isinstance(init, int):
-            for i in range(init, final + 1, incr):
-                opPush(i)
-                interpretSPS(proc)
-        else:
-            opPush(init)
-            opPush(incr)
-            opPush(final)
-            opPush(proc)
-    else:
-        print("Error: psFor expects four operands")
+    stack_len = len(opstack)
+    if stack_len <= 3:
+        print("Error.")
+        return
 
+    op = opPop()
+    last = opPop()
+    i = opPop()
+    first = opPop()
+
+    type_check = (
+        isinstance(op, list) and
+        isinstance(last, int) and
+        isinstance(i, int) and
+        isinstance(first, int)
+    )
+
+    if not type_check:
+        print("Error.")
+        opPush(first)
+        opPush(i)
+        opPush(last)
+        opPush(op)
+    else:
+        iterate = (
+            (i > 0 and first <= last) or
+            (i < 0 and first >= last)
+        )
+        while iterate:
+            opPush(first)
+            interpretSPS(op)
+            first += i
+            iterate = (
+                (i > 0 and first <= last) or
+                (i < 0 and first >= last)
+            )
+
+# Implement the interpreter function
+def interpreter(s):
+    interpretSPS(parse(tokenize(s)))
+
+# Implement the interpretSPS function
+binOp = {
+    'add': add,
+    'sub': sub,
+    'mul': mul,
+    'div': div,
+    'eq': eq,
+    'lt': lt,
+    'gt': gt
+}
+
+# function to interpret a code array representing a sequence of postscirpt 
+# iterates thorugh each token in code array finidng it's type and executing
 def interpretSPS(code):
     for token in code:
-        if isinstance(token, (int, float, bool)):
+        token_type = type(token)
+        if token_type in [bool, float, int, list]:
             opPush(token)
-        elif isinstance(token, str):
-            if token.startswith('/'):
+        elif token_type == str:
+            if token[0] == '/':
                 opPush(token)
+            elif token[0] == '(':
+                opPush(token)
+            elif token.isdigit() or (token[1:].isdigit() and token[0] == '-'):
+                opPush(int(token))
             else:
-                value = lookup(token)
-                if value is None:
-                    raise ValueError(f"Error: name {token} not found in dictstack")
-                elif isinstance(value, list):
-                    interpretSPS(value)
+                operations = {
+                    "add": add,
+                    "sub": sub,
+                    "mul": mul,
+                    "div": div,
+                    "mod": mod,
+                    "eq": eq,
+                    "lt": lt,
+                    "gt": gt,
+                    "length": length,
+                    "get": get,
+                    "getinterval": getinterval,
+                    "put": put,
+                    "dup": dup,
+                    "copy": copy,
+                    "pop": pop,
+                    "clear": clear,
+                    "exch": exch,
+                    "roll": roll,
+                    "stack": stack,
+                    "begin": begin,
+                    "end": end,
+                    "if": psIf,
+                    "ifelse": psIfElse,
+                    "for": psFor,
+                    "def": psDef,
+                    "opPop": opPop,
+                    "dictPop": dictPop,
+                    "dict": psDict,
+                    "true": lambda: opPush(True),
+                    "false": lambda: opPush(False),
+                }
+                operation = operations.get(token)
+                if operation:
+                    operation()
                 else:
-                    opPush(value)
-        elif isinstance(token, list):
-            opPush(token)
-        else:
-            raise TypeError(f"Error: unexpected token type {type(token)}")
-            
-            
-def interpreter(program):
-    tokens = tokenize(program)
-    code_array = parse(tokens)
-    if code_array is False:
-        print("Error: Invalid SPS program")
-    else:
-        interpretSPS(code_array)
-        
-        
-        
+                    value = lookup(token)
+                    if isinstance(value, list):
+                        interpretSPS(value)
+                    elif value is not None:
+                        opPush(value)
+                    else:
+                        print("Error. Function not Found.")
+
+############################################################################################################################## Implementation of New Code
+
+input1 = """
+        /square {
+            dup mul
+        } def
+        (square)
+        4 square
+        dup 16 eq
+        {(pass)} {(fail)} ifelse
+        stack
+        """
+
+input2 ="""
+    (facto) dup length /n exch def
+    /fact {
+        0 dict begin
+        /n exch def
+        n 2 lt
+        { 1}
+        {n 1 sub fact n mul }
+        ifelse
+        end
+    } def
+    n fact stack
+    """
+
+input3 = """
+        /fact{
+        0 dict
+                begin
+                        /n exch def
+                        1
+                        n -1 1 {mul} for
+                end
+        } def
+        6
+        fact
+        stack
+    """
+
+input4 = """
+        /lt6 { 6 lt } def
+        1 2 3 4 5 6 4 -3 roll
+        dup dup lt6 {mul mul mul} if
+        stack
+        clear
+    """
+
+input5 = """
+        (CptS355_HW5) 4 3 getinterval
+        (355) eq
+        {(You_are_in_CptS355)} if
+        stack
+        """
+
+input6 = """
+        /pow2 {/n exch def
+            (pow2_of_n_is) dup 8 n 48 add put
+                1 n -1 1 {pop 2 mul} for
+            } def
+        (Calculating_pow2_of_9) dup 20 get 48 sub pow2
+        stack
+        """
+#comparing in assignment before actual results. Everything has passed
+print(tokenize(input1))
+print(parse(tokenize(input1)))
+print()
+print(tokenize(input2))
+print(parse(tokenize(input2)) )
+print()
+print(tokenize(input3))
+print(parse(tokenize(input3)))
+print()
+print(tokenize(input4))
+print(parse(tokenize(input4)) )
+print()
+print(tokenize(input5))
+print(parse(tokenize(input5)) )
+print()
+print(tokenize(input6))
+print(parse(tokenize(input6)) )
+
+print()
+print()
+
+
+#clear opstack and dictstack
+def clear():
+    del opstack[:]
+    del dictstack[:]
     
+clear()
+
+#Actual tests
+print(interpreter(input1))
+clear()
+print()
+
+print(interpreter(input2))
+clear()
+print()
+
+print(interpreter(input3))
+clear()
+print()
+
+print(interpreter(input4))
+clear()
+print()
+
+print(interpreter(input5))
+clear()
+print()
+
+print(interpreter(input6))
+clear()
+
+
+
