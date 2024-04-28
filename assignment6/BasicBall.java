@@ -23,8 +23,8 @@
      public BasicBall(double r, Color c) {
          rx = 0.0;
          ry = 0.0;
-         vx = StdRandom.uniform(-0.05, 0.05);
-         vy = StdRandom.uniform(-0.05, 0.05);
+         vx = StdRandom.uniform(-0.02, 0.02);
+         vy = StdRandom.uniform(-0.02, 0.02);
          radius = r;
          color = c;
          isOut = false;

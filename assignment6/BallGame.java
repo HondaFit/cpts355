@@ -71,15 +71,11 @@ class Player {
 
 public class BallGame {
     public static ArrayList<BasicBall> balls;
+    public static ArrayList<BasicBall> splitBalls;
     public static int numBallsinGame;
 
-    public static void addBall(BasicBall ball) {
-        balls.add(ball);
-        numBallsinGame++;
-    }
-
-    public static void incrementBallCount() {
-        numBallsinGame++;
+    public static void addSplitBalls(ArrayList<BasicBall> newBalls) {
+        splitBalls.addAll(newBalls);
     }
 
     public static void main(String[] args) {
@@ -117,6 +113,7 @@ public class BallGame {
     
         // create colored balls 
         balls = new ArrayList<>();
+        splitBalls = new ArrayList<>();
         for (int i = 0; i < numBalls; i++) {
             BasicBall ball;
             if (ballTypes[i].equals("basic")) {
@@ -179,6 +176,13 @@ public class BallGame {
                     ball.draw();
                     numBallsinGame++;
                 }
+            }
+            
+            // Add split balls to the main balls ArrayList
+            if (!splitBalls.isEmpty()) {
+                balls.addAll(splitBalls);
+                numBallsinGame += splitBalls.size();
+                splitBalls.clear();
             }
             
             //Print the game progress
