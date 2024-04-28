@@ -1,4 +1,3 @@
-
 /******************************************************************************
  *  Compilation:  javac BallGame.java
  *  Execution:    java BallGame n
@@ -14,10 +13,76 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 
+class Player {
+    private int score;
+    private int basicHits;
+    private int shrinkHits;
+    private int bounceHits;
+    private int splitHits;
+
+    public Player() {
+        score = 0;
+        basicHits = 0;
+        shrinkHits = 0;
+        bounceHits = 0;
+        splitHits = 0;
+    }
+
+    public void addScore(int points) {
+        score += points;
+    }
+
+    public void incrementBasicHits() {
+        basicHits++;
+    }
+
+    public void incrementShrinkHits() {
+        shrinkHits++;
+    }
+
+    public void incrementBounceHits() {
+        bounceHits++;
+    }
+
+    public void incrementSplitHits() {
+        splitHits++;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public int getBasicHits() {
+        return basicHits;
+    }
+
+    public int getShrinkHits() {
+        return shrinkHits;
+    }
+
+    public int getBounceHits() {
+        return bounceHits;
+    }
+
+    public int getSplitHits() {
+        return splitHits;
+    }
+}
+
 public class BallGame {
+    public static ArrayList<BasicBall> balls;
+    public static int numBallsinGame;
+
+    public static void addBall(BasicBall ball) {
+        balls.add(ball);
+        numBallsinGame++;
+    }
+
+    public static void incrementBallCount() {
+        numBallsinGame++;
+    }
 
     public static void main(String[] args) {
-
         // number of bouncing balls
         int numBalls = Integer.parseInt(args[0]);
         //ball types
@@ -38,11 +103,11 @@ public class BallGame {
             index = index+2;
         }
      
-        //TO DO: create a Player object and initialize the player game stats.  
-        
+        // create a Player object and initialize the player game stats
+        Player player = new Player();
         
         //number of active balls
-        int numBallsinGame = 0;
+        numBallsinGame = 0;
         StdDraw.enableDoubleBuffering();
     
         StdDraw.setCanvasSize(800, 800);
@@ -51,21 +116,30 @@ public class BallGame {
         StdDraw.setYscale(-1.0, +1.0);
     
         // create colored balls 
-        //TO DO: Create "numBalls" balls (of types given in "ballTypes" with sizes given in "ballSizes") and store them in an Arraylist
-        ArrayList<BasicBall> balls = new ArrayList<>(); // Create an ArrayList to store the balls
+        balls = new ArrayList<>();
         for (int i = 0; i < numBalls; i++) {
-            BasicBall ball = new BasicBall(ballSizes[i], Color.RED);
-            balls.add(ball); // Add each ball to the ArrayList
+            BasicBall ball;
+            if (ballTypes[i].equals("basic")) {
+                ball = new BasicBall(ballSizes[i], Color.RED);
+            } else if (ballTypes[i].equals("shrink")) {
+                ball = new ShrinkBall(ballSizes[i], Color.GREEN);
+            } else if (ballTypes[i].equals("bounce")) {
+                ball = new BounceBall(ballSizes[i], Color.BLUE);
+            } else if (ballTypes[i].equals("split")) {
+                ball = new SplitBall(ballSizes[i], Color.ORANGE);
+            } else {
+                continue;
+            }
+            balls.add(ball);
         }
-        //TO DO: initialize the numBallsinGame
         numBallsinGame = numBalls;
         
         // do the animation loop
         StdDraw.enableDoubleBuffering();
         while (numBallsinGame > 0) {
     
-            // TODO: move all balls
-            for (BasicBall ball : balls) { // Iterate over each ball in the ArrayList
+            // move all balls
+            for (BasicBall ball : balls) {
                 ball.move();
             }
     
@@ -73,11 +147,23 @@ public class BallGame {
             if (StdDraw.isMousePressed()) {
                 double x = StdDraw.mouseX();
                 double y = StdDraw.mouseY();
-                //TODO: check whether a ball is hit. Check each ball.  
-                for (BasicBall ball : balls) { // Iterate over each ball in the ArrayList
+                // check whether a ball is hit. Check each ball.
+                for (BasicBall ball : balls) {
                     if (ball.isHit(x,y)) {
-                        ball.reset();
-                        //TO DO: Update player statistics
+                        // Update player statistics based on ball type
+                        if (ball instanceof ShrinkBall) {
+                            player.addScore(ball.getScore());
+                            player.incrementShrinkHits();
+                        } else if (ball instanceof BounceBall) {
+                            player.addScore(ball.getScore());
+                            player.incrementBounceHits();
+                        } else if (ball instanceof SplitBall) {
+                            player.addScore(ball.getScore());
+                            player.incrementSplitHits();
+                        } else {
+                            player.addScore(ball.getScore());
+                            player.incrementBasicHits();
+                        }
                     }
                 }
             }
@@ -87,34 +173,41 @@ public class BallGame {
             StdDraw.clear(StdDraw.GRAY);
             StdDraw.setPenColor(StdDraw.BLACK);
             
-            //TO DO: check each ball and see if they are still visible. numBallsinGame should hold the number of visible balls in the game.  
-            for (BasicBall ball : balls) { // Iterate over each ball in the ArrayList
+            // check each ball and see if they are still visible
+            for (BasicBall ball : balls) {
                 if (!ball.isOut) { 
                     ball.draw();
                     numBallsinGame++;
                 }
             }
+            
             //Print the game progress
             StdDraw.setPenColor(StdDraw.YELLOW);
             Font font = new Font("Arial", Font.BOLD, 20);
             StdDraw.setFont(font);
             StdDraw.text(-0.65, 0.90, "Number of balls in game: "+ String.valueOf(numBallsinGame));
-            //TO DO: print the rest of the player statistics
+            StdDraw.text(-0.65, 0.80, "Current Score: " + player.getScore());
     
             StdDraw.show();
             StdDraw.pause(20);
         }
+        
         while (true) {
             StdDraw.setPenColor(StdDraw.BLUE);
             Font font = new Font("Arial", Font.BOLD, 60);
             StdDraw.setFont(font);
             StdDraw.text(0, 0, "GAME OVER");
-            //TO DO: print the rest of the player statistics
+            
+            font = new Font("Arial", Font.BOLD, 20);
+            StdDraw.setFont(font);
+            StdDraw.text(0, -0.2, "Final Score: " + player.getScore());
+            StdDraw.text(0, -0.3, "Basic Hits: " + player.getBasicHits());
+            StdDraw.text(0, -0.4, "Shrink Hits: " + player.getShrinkHits());
+            StdDraw.text(0, -0.5, "Bounce Hits: " + player.getBounceHits());
+            StdDraw.text(0, -0.6, "Split Hits: " + player.getSplitHits());
+            
             StdDraw.show();
             StdDraw.pause(10);           
         }
-            
-        
     }
-
 }
