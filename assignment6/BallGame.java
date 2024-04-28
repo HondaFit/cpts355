@@ -1,14 +1,26 @@
-/******************************************************************************
- *  Compilation:  javac BallGame.java
- *  Execution:    java BallGame n
- *  Dependencies: BasicBall.java StdDraw.java
- *
- *  Creates a BasicBall and animates it
- *
- *  Part of the animation code is adapted from Computer Science: An Interdisciplinary Approach Book
- *  
- *  Run the skeleton code with arguments: 1 basic 0.08
- *******************************************************************************/
+
+//Harish Sridharan
+////////////////////////////////////////////////////
+//BallGame.java
+////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////Testing
+
+//java BallGame 4 basic 0.10 shrink 0.15 bounce 0.08 split 0.12
+
+//java BallGame 1 basic 0.10
+
+//java BallGame 1 shrink 0.15
+
+//java BallGame 1 bounce 0.08
+
+//java BallGame 1 split 0.12
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
@@ -81,37 +93,37 @@ public class BallGame {
     public static void main(String[] args) {
         // number of bouncing balls
         int numBalls = Integer.parseInt(args[0]);
-        //ball types
+        // ball types
         String ballTypes[] = new String[numBalls];
-        //sizes of balls
+        // sizes of balls
         double ballSizes[] = new double[numBalls];
-        
-        //retrieve ball types
-        int index =1;
-        for (int i=0; i<numBalls; i++) {
+
+        // retrieve ball types
+        int index = 1;
+        for (int i = 0; i < numBalls; i++) {
             ballTypes[i] = args[index];
-            index = index+2;
+            index = index + 2;
         }
-        //retrieve ball sizes
+        // retrieve ball sizes
         index = 2;
-        for (int i=0; i<numBalls; i++) {
+        for (int i = 0; i < numBalls; i++) {
             ballSizes[i] = Double.parseDouble(args[index]);
-            index = index+2;
+            index = index + 2;
         }
-     
+
         // create a Player object and initialize the player game stats
         Player player = new Player();
-        
-        //number of active balls
+
+        // number of active balls
         numBallsinGame = 0;
         StdDraw.enableDoubleBuffering();
-    
+
         StdDraw.setCanvasSize(800, 800);
         // set boundary to box with coordinates between -1 and +1
         StdDraw.setXscale(-1.0, +1.0);
         StdDraw.setYscale(-1.0, +1.0);
-    
-        // create colored balls 
+
+        // create colored balls
         balls = new ArrayList<>();
         splitBalls = new ArrayList<>();
         for (int i = 0; i < numBalls; i++) {
@@ -130,24 +142,24 @@ public class BallGame {
             balls.add(ball);
         }
         numBallsinGame = numBalls;
-        
+
         // do the animation loop
         StdDraw.enableDoubleBuffering();
         while (numBallsinGame > 0) {
-    
+
             // move all balls
             for (BasicBall ball : balls) {
                 ball.move();
             }
-    
-            //Check if the mouse is clicked
+
+            // Check if the mouse is clicked
             if (StdDraw.isMousePressed()) {
                 double x = StdDraw.mouseX();
                 double y = StdDraw.mouseY();
                 // check whether a ball is hit. Check each ball.
                 for (BasicBall ball : balls) {
-                    if (ball.isHit(x,y)) {
-                        // Update player statistics based on ball type
+                    if (ball.isHit(x, y)) {
+                        // Update player scores based on ball type
                         if (ball instanceof ShrinkBall) {
                             player.addScore(ball.getScore());
                             player.incrementShrinkHits();
@@ -164,44 +176,44 @@ public class BallGame {
                     }
                 }
             }
-                
+
             numBallsinGame = 0;
             // draw the n balls
             StdDraw.clear(StdDraw.GRAY);
             StdDraw.setPenColor(StdDraw.BLACK);
-            
+
             // check each ball and see if they are still visible
             for (BasicBall ball : balls) {
-                if (!ball.isOut) { 
+                if (!ball.isOut) {
                     ball.draw();
                     numBallsinGame++;
                 }
             }
-            
+
             // Add split balls to the main balls ArrayList
             if (!splitBalls.isEmpty()) {
                 balls.addAll(splitBalls);
                 numBallsinGame += splitBalls.size();
                 splitBalls.clear();
             }
-            
-            //Print the game progress
+
+            // Print the game progress
             StdDraw.setPenColor(StdDraw.YELLOW);
             Font font = new Font("Arial", Font.BOLD, 20);
             StdDraw.setFont(font);
-            StdDraw.text(-0.65, 0.90, "Number of balls in game: "+ String.valueOf(numBallsinGame));
+            StdDraw.text(-0.65, 0.90, "Number of balls in game: " + String.valueOf(numBallsinGame));
             StdDraw.text(-0.65, 0.80, "Current Score: " + player.getScore());
-    
+
             StdDraw.show();
             StdDraw.pause(20);
         }
-        
-        while (true) {
+
+        while (true) { //scoreborard
             StdDraw.setPenColor(StdDraw.BLUE);
             Font font = new Font("Arial", Font.BOLD, 60);
             StdDraw.setFont(font);
             StdDraw.text(0, 0, "GAME OVER");
-            
+
             font = new Font("Arial", Font.BOLD, 20);
             StdDraw.setFont(font);
             StdDraw.text(0, -0.2, "Final Score: " + player.getScore());
@@ -209,9 +221,9 @@ public class BallGame {
             StdDraw.text(0, -0.4, "Shrink Hits: " + player.getShrinkHits());
             StdDraw.text(0, -0.5, "Bounce Hits: " + player.getBounceHits());
             StdDraw.text(0, -0.6, "Split Hits: " + player.getSplitHits());
-            
+
             StdDraw.show();
-            StdDraw.pause(10);           
+            StdDraw.pause(10);
         }
     }
 }
